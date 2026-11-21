@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>ご感想のお願い｜旅館 柳の湯</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+/* ============================================================
+   設定：リンク先はここだけ変更すればOKです
+   ============================================================ */
+const CONFIG = {
+  // じゃらん：マイページ（ログイン後、予約一覧からクチコミ投稿）
+  jalan:   "https://www.jalan.net/uw/uwp8000/uww8010.do",
+  // 楽天トラベル：マイページ（予約確認）
+  rakuten: "https://mypage.travel.rakuten.co.jp/",
+  // 一休.com：予約確認
+  ikyu:    "https://www.ikyu.com/booking/",
+  // Booking.com・Agoda：予約一覧（ログイン後に表示）。言語ごとのページは下の LANG_LINKS で切り替え
+  booking: "https://secure.booking.com/mytrips.ja.html",
+  agoda:   "https://www.agoda.com/ja-jp/account/bookings.html",
+  // Google：Googleビジネスプロフィールの「クチコミを依頼」で取得できる短縮リンクに差し替えると、
+  //         投稿画面が直接開きます（例：https://g.page/r/XXXXXXXX/review）
+  google:  "https://www.google.com/maps?cid=18347113782654127880",
+  // 公式サイト・電話
+  official: "https://yanaginoyu.com/",
+  tel: "017-752-2023"
+};
+</script>
+<style>
+:root{
+  --paper:#f6f1e7;
+  --card:#fffdf8;
+  --ink:#2a2520;
+  --ink-soft:#5e554b;
+  --line:#e2d8c6;
+  --yanagi:#5d6f34;      /* 柳色 */
+  --accent:#8a3b2e;      /* 弁柄 */
+  --focus:#c9a227;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","PingFang TC","Microsoft JhengHei",sans-serif;
+  font-size:18px;line-height:1.8;
+}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 48px}
+
+/* 言語切替 */
+.lang{display:flex;justify-content:flex-end;gap:6px;padding:12px 0 0}
+.lang button{
+  font:inherit;font-size:14px;padding:6px 12px;border-radius:999px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink-soft);cursor:pointer
+}
+.lang button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ヘッダー */
+header{text-align:center;padding:28px 0 8px}
+.sub{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;letter-spacing:.2em;font-size:15px;color:var(--ink-soft);margin:0}
+h1{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;font-weight:700;font-size:40px;letter-spacing:.15em;margin:4px 0 0;line-height:1.3}
+.rule{width:48px;height:2px;background:var(--yanagi);margin:18px auto}
+.lead{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;font-size:20px;font-weight:500;margin:0 0 10px;white-space:pre-line}
+h2,.box h3{text-wrap:balance}
+.intro{color:var(--ink-soft);margin:0;text-align:left}
+
+/* 質問と選択肢 */
+h2{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;font-size:22px;text-align:center;margin:36px 0 16px}
+.choices{display:grid;gap:12px}
+.choice{
+  display:flex;align-items:center;gap:14px;width:100%;min-height:72px;
+  padding:14px 18px;border-radius:14px;border:2px solid var(--line);
+  background:var(--card);color:var(--ink);font:inherit;text-align:left;cursor:pointer;
+  transition:border-color .15s, box-shadow .15s;
+}
+.choice:hover{border-color:var(--yanagi)}
+.choice:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.choice[aria-expanded="true"]{border-color:var(--yanagi);box-shadow:0 0 0 3px #5d6f3422}
+.choice .name{font-size:20px;font-weight:700;display:block;line-height:1.4}
+.choice .hint{font-size:15px;color:var(--ink-soft);display:block;line-height:1.5}
+.choice .chev{margin-left:auto;font-size:22px;color:var(--yanagi);transition:transform .2s}
+.choice[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.dot{width:14px;height:14px;border-radius:50%;flex:none}
+
+/* 手順パネル */
+.panel{
+  background:var(--card);border:2px solid var(--yanagi);border-top:none;
+  border-radius:0 0 14px 14px;margin:-14px 0 0;padding:26px 18px 20px;
+}
+.panel[hidden]{display:none}
+.steps{list-style:none;margin:0 0 18px;padding:0;counter-reset:s}
+.steps li{position:relative;padding:0 0 12px 46px;counter-increment:s}
+.steps li::before{
+  content:counter(s);position:absolute;left:0;top:2px;width:32px;height:32px;border-radius:50%;
+  background:var(--yanagi);color:#fff;font-weight:700;display:grid;place-items:center;font-size:17px;line-height:1
+}
+.go{
+  display:flex;align-items:center;justify-content:center;gap:8px;min-height:60px;
+  border-radius:12px;background:var(--yanagi);color:#fff;text-decoration:none;
+  font-size:19px;font-weight:700;padding:12px 16px;text-align:center
+}
+.go:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.go.secondary{background:transparent;color:var(--yanagi);border:2px solid var(--yanagi);margin-top:10px}
+.note{font-size:15px;color:var(--ink-soft);margin:14px 0 0;line-height:1.7}
+
+/* ご家族向け・お困りごと */
+.box{border-radius:14px;padding:20px 18px;margin-top:28px}
+.box h3{font-family:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;font-size:19px;margin:0 0 8px}
+.box p{margin:0 0 14px}
+.family{background:#efe7d6}
+.share{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.share a,.share button{
+  font:inherit;font-size:16px;font-weight:700;min-height:52px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;padding:8px
+}
+.line{background:#06c755;color:#fff;border:none}
+.copy{background:var(--card);color:var(--ink);border:2px solid var(--line)}
+.help{background:var(--card);border:1px solid var(--line)}
+.tel{display:inline-flex;align-items:center;gap:8px;font-size:22px;font-weight:700;color:var(--accent);text-decoration:none}
+
+footer{text-align:center;margin-top:36px;font-size:15px;color:var(--ink-soft)}
+footer a{color:var(--yanagi);font-weight:700}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;
+  padding:10px 18px;border-radius:999px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+
+html[lang="zh-Hant"] body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei","Noto Sans JP",sans-serif}
+@media (max-width:360px){h1{font-size:34px}.share{grid-template-columns:1fr}}
+.logo{margin:8px 0 0;line-height:0}
+.logo img{width:96px;height:auto}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav class="lang" aria-label="Language">
+    <button type="button" data-set-lang="ja" aria-pressed="true">日本語</button>
+    <button type="button" data-set-lang="en" aria-pressed="false">English</button>
+    <button type="button" data-set-lang="zh-Hant" aria-pressed="false">繁體中文</button>
+  </nav>
+
+  <header>
+    <h1 class="logo"><img src="logo.png" width="417" height="537" alt="津軽藩本陣の宿 柳の湯"></h1>
+    <div class="rule"></div>
+    <p class="lead" data-i18n="lead"></p>
+    <p class="intro" data-i18n="intro"></p>
+  </header>
+
+  <h2 data-i18n="q"></h2>
+
+  <div class="choices">
+    <button class="choice" type="button" aria-expanded="false" aria-controls="p-jalan" data-key="jalan">
+      <span class="dot" style="background:#e95e2f"></span>
+      <span><span class="name" data-i18n="jalan"></span><span class="hint" data-i18n="jalanHint"></span></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div class="panel" id="p-jalan" hidden>
+      <ol class="steps">
+        <li data-i18n="jalanS1"></li><li data-i18n="jalanS2"></li><li data-i18n="jalanS3"></li>
+      </ol>
+      <a class="go" data-link="jalan" target="_blank" rel="noopener"><span data-i18n="openJalan"></span> ↗</a>
+      <p class="note" data-i18n="otaNote"></p>
+    </div>
+
+    <button class="choice" type="button" aria-expanded="false" aria-controls="p-rakuten" data-key="rakuten">
+      <span class="dot" style="background:#bf0000"></span>
+      <span><span class="name" data-i18n="rakuten"></span><span class="hint" data-i18n="rakutenHint"></span></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div class="panel" id="p-rakuten" hidden>
+      <ol class="steps">
+        <li data-i18n="rakutenS1"></li><li data-i18n="rakutenS2"></li><li data-i18n="rakutenS3"></li>
+      </ol>
+      <a class="go" data-link="rakuten" target="_blank" rel="noopener"><span data-i18n="openRakuten"></span> ↗</a>
+      <p class="note" data-i18n="otaNote"></p>
+    </div>
+
+    <button class="choice" type="button" aria-expanded="false" aria-controls="p-ikyu" data-key="ikyu">
+      <span class="dot" style="background:#1a1a1a"></span>
+      <span><span class="name" data-i18n="ikyu"></span><span class="hint" data-i18n="ikyuHint"></span></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div class="panel" id="p-ikyu" hidden>
+      <ol class="steps">
+        <li data-i18n="ikyuS1"></li><li data-i18n="ikyuS2"></li><li data-i18n="ikyuS3"></li>
+      </ol>
+      <a class="go" data-link="ikyu" target="_blank" rel="noopener"><span data-i18n="openIkyu"></span> ↗</a>
+      <p class="note" data-i18n="otaNote"></p>
+    </div>
+
+    <button class="choice" type="button" aria-expanded="false" aria-controls="p-booking" data-key="booking">
+      <span class="dot" style="background:#003b95"></span>
+      <span><span class="name" data-i18n="booking"></span><span class="hint" data-i18n="bookingHint"></span></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div class="panel" id="p-booking" hidden>
+      <ol class="steps">
+        <li data-i18n="bS1"></li><li data-i18n="bS2"></li><li data-i18n="bS3"></li>
+      </ol>
+      <a class="go" data-link="booking" target="_blank" rel="noopener"><span data-i18n="openBooking"></span> ↗</a>
+      <p class="note" data-i18n="intlNote"></p>
+    </div>
+
+    <button class="choice" type="button" aria-expanded="false" aria-controls="p-agoda" data-key="agoda">
+      <span class="dot" style="background:#e0301e"></span>
+      <span><span class="name" data-i18n="agoda"></span><span class="hint" data-i18n="agodaHint"></span></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div class="panel" id="p-agoda" hidden>
+      <ol class="steps">
+        <li data-i18n="aS1"></li><li data-i18n="aS2"></li><li data-i18n="aS3"></li>
+      </ol>
+      <a class="go" data-link="agoda" target="_blank" rel="noopener"><span data-i18n="openAgoda"></span> ↗</a>
+      <p class="note" data-i18n="intlNote"></p>
+    </div>
+
+    <button class="choice" type="button" aria-expanded="false" aria-controls="p-direct" data-key="direct">
+      <span class="dot" style="background:#4285f4"></span>
+      <span><span class="name" data-i18n="direct"></span><span class="hint" data-i18n="directHint"></span></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div class="panel" id="p-direct" hidden>
+      <ol class="steps">
+        <li data-i18n="gS1"></li><li data-i18n="gS2"></li><li data-i18n="gS3"></li>
+      </ol>
+      <a class="go" data-link="google" target="_blank" rel="noopener"><span data-i18n="openGoogle"></span> ↗</a>
+    </div>
+
+    <button class="choice" type="button" aria-expanded="false" aria-controls="p-intl" data-key="intl">
+      <span class="dot" style="background:#003b95"></span>
+      <span><span class="name" data-i18n="intl"></span><span class="hint" data-i18n="intlHint"></span></span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div class="panel" id="p-intl" hidden>
+      <ol class="steps">
+        <li data-i18n="iS1"></li><li data-i18n="iS2"></li><li data-i18n="iS3"></li>
+      </ol>
+      <p class="note" data-i18n="intlAlso" style="margin:0 0 4px"></p>
+      <a class="go secondary" data-link="google" target="_blank" rel="noopener"><span data-i18n="openGoogle"></span> ↗</a>
+    </div>
+  </div>
+
+  <section class="box family">
+    <h3 data-i18n="famH"></h3>
+    <p data-i18n="famP"></p>
+    <div class="share">
+      <a class="line" id="lineShare" target="_blank" rel="noopener" data-i18n="lineBtn"></a>
+      <button class="copy" type="button" id="copyBtn" data-i18n="copyBtn"></button>
+    </div>
+  </section>
+
+  <section class="box help">
+    <h3 data-i18n="helpH"></h3>
+    <p data-i18n="helpP"></p>
+    <a class="tel" id="telLink">☎ <span id="telText"></span></a>
+  </section>
+
+  <footer>
+    <p><span data-i18n="next"></span><br><a data-link="official" target="_blank" rel="noopener">yanaginoyu.com</a></p>
+    <p>© 旅館 柳の湯</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const T = {
+  ja: {
+    sub:"津軽藩本陣の宿", name:"柳の湯",
+    lead:"このたびはご宿泊いただき、\n誠にありがとうございました。",
+    intro:"お客様の率直なご感想は、スタッフ一同の何よりの励みとなり、これからの宿づくりに生かしてまいります。お手すきの際に、ひと言お寄せいただけましたら幸いです。",
+    q:"どちらでご予約されましたか？",
+    jalan:"じゃらん", jalanHint:"じゃらんnet・じゃらんアプリ",
+    rakuten:"楽天トラベル", rakutenHint:"楽天トラベル・楽天トラベルアプリ",
+    direct:"公式サイト・お電話など", directHint:"Googleマップにご感想をお寄せいただけます",
+    intl:"Expedia・その他のサイト", intlHint:"上にない予約サイト",
+    ikyu:"一休.com", ikyuHint:"一休.com・一休アプリ",
+    booking:"Booking.com", bookingHint:"Booking.com・アプリ",
+    agoda:"Agoda（アゴダ）", agodaHint:"Agoda・アプリ",
+    ikyuS1:"下のボタンから「一休.com」の予約確認を開き、ログインします。",
+    ikyuS2:"ご宿泊済みのご予約から「柳の湯」を選びます。",
+    ikyuS3:"クチコミ投稿のボタンから、ご感想をお書きください。",
+    openIkyu:"一休.comを開く",
+    bS1:"チェックアウト後、Booking.comからメールが届きます。メールの「クチコミを書く」から投稿するのが一番簡単です。",
+    bS2:"メールが見つからない場合は、下のボタンから「予約」を開いてログインします。",
+    bS3:"ご宿泊済みの「柳の湯」を選び、クチコミを投稿してください。",
+    openBooking:"Booking.comの予約を開く",
+    aS1:"チェックアウト後、Agodaからメールが届きます。メールのレビューのボタンから投稿するのが一番簡単です。",
+    aS2:"メールが見つからない場合は、下のボタンから「予約一覧」を開いてログインします。",
+    aS3:"ご宿泊済みの「柳の湯」を選び、レビューを投稿してください。",
+    openAgoda:"Agodaの予約を開く",
+    intlNote:"※ご予約されたご本人のアカウントから、チェックアウト後に投稿いただけます。",
+    jalanS1:"下のボタンから「じゃらん」のマイページを開き、ログインします。",
+    jalanS2:"ご予約の一覧から「柳の湯」のご予約を選びます。",
+    jalanS3:"クチコミ投稿のボタンから、ご感想をお書きください。",
+    openJalan:"じゃらんを開く",
+    rakutenS1:"下のボタンから「楽天トラベル」の予約確認（マイページ）を開き、ログインします。",
+    rakutenS2:"ご宿泊済みのご予約から「柳の湯」を選びます。",
+    rakutenS3:"「お客さまの声（クチコミ）」の投稿ボタンから、ご感想をお書きください。",
+    openRakuten:"楽天トラベルを開く",
+    otaNote:"※ご予約されたご本人のアカウントから投稿いただけます。チェックアウト後に投稿できるようになります。予約サイトから届くメールのリンクからも投稿いただけます。",
+    gS1:"下のボタンからGoogleマップを開きます。",
+    gS2:"「クチコミを書く」を押します。",
+    gS3:"星の数とご感想を入力して、投稿してください。",
+    openGoogle:"Googleマップを開く",
+    iS1:"チェックアウト後、ご予約サイトからメールが届きます。",
+    iS2:"メール内の「クチコミを書く」ボタンを押します。",
+    iS3:"ご感想をご入力ください。",
+    intlAlso:"Googleマップでもご感想をお寄せいただけます。",
+    famH:"ご予約されたご家族の方へ",
+    famP:"じゃらん・楽天トラベルのクチコミは、ご予約された方のアカウントからのみ投稿いただけます。ご家族がご予約された場合は、このページをご家族へお送りください。",
+    lineBtn:"LINEで送る", copyBtn:"リンクをコピー", copied:"リンクをコピーしました",
+    shareText:"柳の湯にご宿泊いただきありがとうございました。よろしければご感想をお寄せください。",
+    helpH:"ご滞在中、お困りのことはございませんか？",
+    helpP:"どんな小さなことでも、フロントまでお気軽にお申し付けください。すぐにお伺いいたします。",
+    next:"次回のご予約は公式サイトからも承っております。",
+    title:"ご感想のお願い｜旅館 柳の湯"
+  },
+  en: {
+    sub:"A historic inn of the Tsugaru Domain", name:"Yanagi no Yu",
+    lead:"Thank you very much for staying with us.",
+    intro:"Your honest feedback means a great deal to our staff and helps us keep improving. We would be grateful if you could share a few words when you have a moment.",
+    q:"Where did you book your stay?",
+    jalan:"Jalan", jalanHint:"jalan.net / Jalan app",
+    rakuten:"Rakuten Travel", rakutenHint:"Rakuten Travel / app",
+    direct:"Our website, phone or other", directHint:"Leave a review on Google Maps",
+    intl:"Expedia or other sites", intlHint:"Sites not listed above",
+    ikyu:"Ikyu.com", ikyuHint:"Ikyu.com / app",
+    booking:"Booking.com", bookingHint:"Booking.com / app",
+    agoda:"Agoda", agodaHint:"Agoda / app",
+    ikyuS1:"Tap the button below to open your Ikyu reservations and log in.",
+    ikyuS2:"Select your completed stay at Yanagi no Yu.",
+    ikyuS3:"Tap the review button and share your thoughts.",
+    openIkyu:"Open Ikyu.com",
+    bS1:"After check-out, Booking.com will email you. The easiest way is to tap “Write a review” in that email.",
+    bS2:"Can’t find the email? Tap the button below to open “Bookings” and log in.",
+    bS3:"Select your stay at Yanagi no Yu and write your review.",
+    openBooking:"Open my Booking.com trips",
+    aS1:"After check-out, Agoda will email you. The easiest way is to tap the review button in that email.",
+    aS2:"Can’t find the email? Tap the button below to open “My bookings” and log in.",
+    aS3:"Select your stay at Yanagi no Yu and write your review.",
+    openAgoda:"Open my Agoda bookings",
+    intlNote:"Reviews can be posted after check-out from the account used to make the booking.",
+    jalanS1:"Tap the button below to open your Jalan “My Page” and log in.",
+    jalanS2:"Select your reservation at Yanagi no Yu.",
+    jalanS3:"Tap the review button and share your thoughts.",
+    openJalan:"Open Jalan",
+    rakutenS1:"Tap the button below to open your Rakuten Travel reservations and log in.",
+    rakutenS2:"Select your completed stay at Yanagi no Yu.",
+    rakutenS3:"Tap the review (“お客さまの声”) button and share your thoughts.",
+    openRakuten:"Open Rakuten Travel",
+    otaNote:"Reviews can be posted from the account used to make the booking, after check-out. You can also use the link in the email from the booking site.",
+    gS1:"Tap the button below to open Google Maps.",
+    gS2:"Tap “Write a review”.",
+    gS3:"Choose your star rating, write a few words and post.",
+    openGoogle:"Open Google Maps",
+    iS1:"After check-out, you will receive an email from your booking site.",
+    iS2:"Tap the “Write a review” button in that email.",
+    iS3:"Share your thoughts about your stay.",
+    intlAlso:"You are also welcome to leave a review on Google Maps.",
+    famH:"Booked by someone else?",
+    famP:"Reviews on Japanese booking sites can only be posted by the person who made the booking. Please share this page with them.",
+    lineBtn:"Share via LINE", copyBtn:"Copy link", copied:"Link copied",
+    shareText:"Thank you for staying at Yanagi no Yu. We would love to hear your feedback.",
+    helpH:"Is there anything we can help with?",
+    helpP:"However small, please feel free to ask at the front desk at any time during your stay.",
+    next:"You can also book your next stay on our official website.",
+    title:"Your feedback | Yanagi no Yu"
+  },
+  "zh-Hant": {
+    sub:"津輕藩本陣之宿", name:"柳之湯",
+    lead:"衷心感謝您\n此次入住柳之湯。",
+    intro:"您坦誠的感想是全體員工最大的鼓勵，也將幫助我們持續進步。若您方便，懇請留下隻字片語。",
+    q:"請問您是透過哪裡預訂的呢？",
+    jalan:"Jalan（じゃらん）", jalanHint:"jalan.net・Jalan App",
+    rakuten:"樂天旅遊", rakutenHint:"樂天旅遊・App",
+    direct:"官方網站・電話・其他", directHint:"可於 Google 地圖留下評論",
+    intl:"Expedia・其他網站", intlHint:"未列於上方的訂房網站",
+    ikyu:"一休.com", ikyuHint:"一休.com・App",
+    booking:"Booking.com", bookingHint:"Booking.com・App",
+    agoda:"Agoda", agodaHint:"Agoda・App",
+    ikyuS1:"點擊下方按鈕開啟一休.com 的預訂確認並登入。",
+    ikyuS2:"從已入住的預訂中選擇「柳之湯」。",
+    ikyuS3:"點擊評論按鈕，寫下您的感想。",
+    openIkyu:"開啟一休.com",
+    bS1:"退房後，Booking.com 會寄送電子郵件給您。點擊郵件中的「撰寫評語」是最簡單的方式。",
+    bS2:"找不到郵件時，請點擊下方按鈕開啟「預訂」並登入。",
+    bS3:"選擇「柳之湯」的住宿紀錄並撰寫評語。",
+    openBooking:"開啟 Booking.com 預訂",
+    aS1:"退房後，Agoda 會寄送電子郵件給您。點擊郵件中的評論按鈕是最簡單的方式。",
+    aS2:"找不到郵件時，請點擊下方按鈕開啟「我的預訂」並登入。",
+    aS3:"選擇「柳之湯」的住宿紀錄並撰寫評論。",
+    openAgoda:"開啟 Agoda 預訂",
+    intlNote:"※ 需使用預訂人的帳號，並於退房後才能發表評論。",
+    jalanS1:"點擊下方按鈕開啟 Jalan 會員頁面並登入。",
+    jalanS2:"從預訂清單中選擇「柳之湯」。",
+    jalanS3:"點擊評論按鈕，寫下您的感想。",
+    openJalan:"開啟 Jalan",
+    rakutenS1:"點擊下方按鈕開啟樂天旅遊的預訂確認頁面並登入。",
+    rakutenS2:"從已入住的預訂中選擇「柳之湯」。",
+    rakutenS3:"點擊評論（お客さまの声）按鈕，寫下您的感想。",
+    openRakuten:"開啟樂天旅遊",
+    otaNote:"※ 需使用預訂人的帳號，並於退房後才能發表評論。也可透過訂房網站寄送的電子郵件中的連結發表。",
+    gS1:"點擊下方按鈕開啟 Google 地圖。",
+    gS2:"點擊「撰寫評論」。",
+    gS3:"選擇星等並輸入感想後送出。",
+    openGoogle:"開啟 Google 地圖",
+    iS1:"退房後，訂房網站會寄送電子郵件給您。",
+    iS2:"點擊郵件中的「撰寫評論」按鈕。",
+    iS3:"寫下您對此次住宿的感想。",
+    intlAlso:"也歡迎您在 Google 地圖留下評論。",
+    famH:"由他人代為預訂嗎？",
+    famP:"日本訂房網站的評論僅限預訂人本人發表。若由家人或朋友代訂，請將此頁面分享給對方。",
+    lineBtn:"用 LINE 分享", copyBtn:"複製連結", copied:"已複製連結",
+    shareText:"感謝您入住柳之湯，誠摯期待您分享感想。",
+    helpH:"住宿期間是否有任何需要協助之處？",
+    helpP:"無論大小事，歡迎隨時洽詢櫃檯，我們將立即為您服務。",
+    next:"下次預訂也歡迎透過官方網站。",
+    title:"敬請分享您的感想｜柳之湯"
+  }
+};
+
+// 公開用のURL（計測用の ?src=... は除き、予約サイトの指定 ?site=... は残してご家族に共有）
+const siteParam = new URLSearchParams(location.search).get("site");
+const shareUrl = location.origin + location.pathname + (siteParam ? "?site=" + encodeURIComponent(siteParam) : "");
+
+function setLang(lang){
+  if(!T[lang]) lang = "ja";
+  const d = T[lang];
+  document.documentElement.lang = lang;
+  document.title = d.title;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const k = el.getAttribute("data-i18n");
+    if(d[k] != null) el.textContent = d[k];
+  });
+  document.querySelectorAll("[data-set-lang]").forEach(b=>{
+    b.setAttribute("aria-pressed", String(b.dataset.setLang === lang));
+  });
+  const LL = {
+    ja:{ booking:"https://secure.booking.com/mytrips.ja.html", agoda:"https://www.agoda.com/ja-jp/account/bookings.html" },
+    en:{ booking:"https://secure.booking.com/mytrips.en-gb.html", agoda:"https://www.agoda.com/en-us/account/bookings.html" },
+    "zh-Hant":{ booking:"https://secure.booking.com/mytrips.zh-tw.html", agoda:"https://www.agoda.com/zh-tw/account/bookings.html" }
+  }[lang];
+  document.querySelectorAll('[data-link="booking"]').forEach(a=>a.href = LL.booking);
+  document.querySelectorAll('[data-link="agoda"]').forEach(a=>a.href = LL.agoda);
+  document.getElementById("lineShare").href =
+    "https://line.me/R/msg/text/?" + encodeURIComponent(d.shareText + "\n" + shareUrl);
+  try{ localStorage.setItem("yny-lang", lang); }catch(e){}
+}
+
+// リンクの設定
+document.querySelectorAll("[data-link]").forEach(a=>{ a.href = CONFIG[a.dataset.link]; });
+document.getElementById("telLink").href = "tel:" + CONFIG.tel.replace(/-/g,"");
+document.getElementById("telText").textContent = CONFIG.tel;
+
+// 選択肢の開閉（ひとつだけ開く）
+document.querySelectorAll(".choice").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const open = btn.getAttribute("aria-expanded") === "true";
+    document.querySelectorAll(".choice").forEach(b=>{
+      b.setAttribute("aria-expanded","false");
+      document.getElementById(b.getAttribute("aria-controls")).hidden = true;
+    });
+    if(!open){
+      btn.setAttribute("aria-expanded","true");
+      const p = document.getElementById(btn.getAttribute("aria-controls"));
+      p.hidden = false;
+      btn.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  });
+});
+
+// リンクのコピー
+document.getElementById("copyBtn").addEventListener("click", async ()=>{
+  const lang = document.documentElement.lang;
+  try{ await navigator.clipboard.writeText(shareUrl); }
+  catch(e){
+    const t = document.createElement("textarea"); t.value = shareUrl; document.body.appendChild(t);
+    t.select(); try{ document.execCommand("copy"); }catch(_){} t.remove();
+  }
+  const toast = document.getElementById("toast");
+  toast.textContent = T[lang].copied; toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 1800);
+});
+
+document.querySelectorAll("[data-set-lang]").forEach(b=>b.addEventListener("click", ()=>setLang(b.dataset.setLang)));
+
+// 予約サイトの指定（しおりのQR用）：?site=jalan / rakuten / google / intl
+// 指定されたサイトの手順を一番上に移して、最初から開いておく
+(function(){
+  const map = { jalan:"jalan", rakuten:"rakuten", ikyu:"ikyu", booking:"booking", agoda:"agoda",
+                google:"direct", direct:"direct", intl:"intl" };
+  const key = map[(new URLSearchParams(location.search).get("site") || "").toLowerCase()];
+  if(!key) return;
+  const btn = document.querySelector(`.choice[data-key="${key}"]`);
+  const panel = document.getElementById(btn.getAttribute("aria-controls"));
+  const wrap = document.querySelector(".choices");
+  wrap.prepend(panel); wrap.prepend(btn);
+  btn.setAttribute("aria-expanded","true");
+  panel.hidden = false;
+})();
+
+// 初期言語：?lang=en などの指定 → 前回の選択 → 端末の言語
+(function(){
+  const q = new URLSearchParams(location.search).get("lang");
+  let saved = null; try{ saved = localStorage.getItem("yny-lang"); }catch(e){}
+  const nav = (navigator.language || "ja").toLowerCase();
+  const guess = nav.startsWith("ja") ? "ja" : nav.startsWith("zh") ? "zh-Hant" : "en";
+  setLang(q || saved || guess);
+})();
+</script>
+</body>
+</html>
