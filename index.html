@@ -134,6 +134,7 @@ html[lang="zh-Hant"] body{font-family:"Zen Kaku Gothic New","PingFang TC","Micro
 @media (max-width:360px){h1{font-size:34px}.share{grid-template-columns:1fr}}
 .logo{margin:8px 0 0;line-height:0}
 .logo img{width:96px;height:auto}
+.ph{display:inline-block}
 </style>
 </head>
 <body>
@@ -287,7 +288,7 @@ const T = {
     sub:"津軽藩本陣の宿", name:"柳の湯",
     lead:"このたびはご宿泊いただき、\n誠にありがとうございました。",
     intro:"お客様の率直なご感想は、スタッフ一同の何よりの励みとなり、これからの宿づくりに生かしてまいります。お手すきの際に、ひと言お寄せいただけましたら幸いです。",
-    q:"どちらでご予約されましたか？",
+    q:"どちらで|ご予約されましたか？",
     jalan:"じゃらん", jalanHint:"じゃらんnet・じゃらんアプリ",
     rakuten:"楽天トラベル", rakutenHint:"楽天トラベル・楽天トラベルアプリ",
     direct:"公式サイト・お電話など", directHint:"Googleマップにご感想をお寄せいただけます",
@@ -330,13 +331,13 @@ const T = {
     iS2:"メール内の「クチコミを書く」ボタンを押します。",
     iS3:"ご感想をご入力ください。",
     intlAlso:"Googleマップでもご感想をお寄せいただけます。",
-    famH:"ご予約されたご家族の方へ",
+    famH:"ご予約された|ご家族の方へ",
     famP:"じゃらん・楽天トラベルのクチコミは、ご予約された方のアカウントからのみ投稿いただけます。ご家族がご予約された場合は、このページをご家族へお送りください。",
     lineBtn:"LINEで送る", copyBtn:"リンクをコピー", copied:"リンクをコピーしました",
     shareText:"柳の湯にご宿泊いただきありがとうございました。よろしければご感想をお寄せください。",
-    helpH:"ご滞在中、お困りのことはございませんか？",
+    helpH:"ご滞在中、|お困りのことは|ございませんか？",
     helpP:"どんな小さなことでも、フロントまでお気軽にお申し付けください。すぐにお伺いいたします。",
-    next:"次回のご予約は公式サイトからも承っております。",
+    next:"次回のご予約は|公式サイトからも|承っております。",
     title:"ご感想のお願い｜旅館 柳の湯"
   },
   en: {
@@ -399,7 +400,7 @@ const T = {
     sub:"津輕藩本陣之宿", name:"柳之湯",
     lead:"衷心感謝您\n此次入住柳之湯。",
     intro:"您坦誠的感想是全體員工最大的鼓勵，也將幫助我們持續進步。若您方便，懇請留下隻字片語。",
-    q:"請問您是透過哪裡預訂的呢？",
+    q:"請問您是透過|哪裡預訂的呢？",
     jalan:"Jalan（じゃらん）", jalanHint:"jalan.net・Jalan App",
     rakuten:"樂天旅遊", rakutenHint:"樂天旅遊・App",
     direct:"官方網站・電話・其他", directHint:"可於 Google 地圖留下評論",
@@ -446,9 +447,9 @@ const T = {
     famP:"日本訂房網站的評論僅限預訂人本人發表。若由家人或朋友代訂，請將此頁面分享給對方。",
     lineBtn:"用 LINE 分享", copyBtn:"複製連結", copied:"已複製連結",
     shareText:"感謝您入住柳之湯，誠摯期待您分享感想。",
-    helpH:"住宿期間是否有任何需要協助之處？",
+    helpH:"住宿期間|是否有任何|需要協助之處？",
     helpP:"無論大小事，歡迎隨時洽詢櫃檯，我們將立即為您服務。",
-    next:"下次預訂也歡迎透過官方網站。",
+    next:"下次預訂也歡迎|透過官方網站。",
     title:"敬請分享您的感想｜柳之湯"
   }
 };
@@ -464,7 +465,11 @@ function setLang(lang){
   document.title = d.title;
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     const k = el.getAttribute("data-i18n");
-    if(d[k] != null) el.textContent = d[k];
+    if(d[k] == null) return;
+    // 「|」で区切った文は、区切りの位置でだけ改行する（スマホで言葉の途中で切れないように）
+    if(d[k].includes("|")){
+      el.replaceChildren(...d[k].split("|").map(s=>{ const sp=document.createElement("span"); sp.className="ph"; sp.textContent=s; return sp; }));
+    }else el.textContent = d[k];
   });
   document.querySelectorAll("[data-set-lang]").forEach(b=>{
     b.setAttribute("aria-pressed", String(b.dataset.setLang === lang));
